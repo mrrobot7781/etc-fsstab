@@ -1,0 +1,172 @@
+Secure site by XCA Atual Kahate method
+    mkdir demo
+    cd demo/
+    ls
+    sudo systemctl status apache2
+    sudo ufw allow apache2
+    sudo ufw allow Apache
+    sudo a2enmod ssl
+    sudo vim /etc/apache2/sites-available/
+    cd /etc/apache2/sites-available/
+    ls
+    cp akash.conf goli.conf
+    sudo cp akash.conf goli.conf
+    sudo vim goli.conf 
+  
+  
+  <VirtualHost *:443>
+	ServerName  www.goli.com
+	DocumentRoot  /var/www/html
+
+	SSLEngine on
+	SSLCertificateFile  /home/mrrobot/demo/www.goli.com.pem →endpointcert
+	SSLCertificateKeyFile  /home/mrrobot/demo/goli_key.pem —>endpointkey
+	SSLCACertificateFile  /home/mrrobot/demo/rootca.crt —> rootcert
+
+  </VirtualHost>
+
+  
+  
+  cd ..
+   ls
+  sudo vim apache2.conf   — ServerName www.goli.com
+  sudo vim /etc/hosts 
+  sudo a2ensite goli.conf 
+  systemctl reload apache2
+  host -t a www.goli.com
+
+Rootca —> certificateupload authorities
+
+
+
+
+
+
+Encryption – Decryption “Symmetric Key”
+openssl enc -des-ede3-cbc -in test.txt -out cipher.txt 
+openssl enc -d -des-ede3-cbc -in cipher.txt -out decrypted.txt
+
+Encryption – Decryption “Asymmetric Key”
+openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048
+openssl pkey -in private.pem -pubout -out public.pem
+openssl pkeyutl -encrypt -inkey public.pem -pubin -in plain.txt -out cipher.txt
+openssl pkeyutl -decrypt -inkey private.pem -in cipher.txt -out decrypted.txt
+
+Hashing
+openssl dgst -sha256 -out hash1 myfile.txt
+
+Create digital signature
+
+openssl genpkey -algorithm RSA -out private.pem
+openssl pkey -in private.pem -pubout -out public.pem
+openssl dgst -sha256 -sign private.pem -out file1.sig file1.txt
+openssl dgst -sha256 -verify public.pem -signature file1.sig file1.txt
+
+
+sudo apt install apache2
+sudo systemctl status apache2
+sudo a2enmod ssl
+
+sudo vim /etc/apache2/sites-available/bob.conf
+<VirtualHost *:443>
+ServerName bob.example.com
+DocumentRoot /var/www/bob
+SSLEngine on
+SSLCertificateFile /home/atul/testxca/bob.crt
+SSLCertificateKeyFile /home/atul/testxca/bob.key
+SSLCACertificateFile /home/atul/testxca/root.crt
+</VirtualHost>
+
+sudo vim /etc/apache2/apache2.conf
+ServerName www.server.com
+
+sudo vim /etc/hosts
+127.0.0.1 www.server.com
+
+sudo a2ensite server.conf
+sudo systemctl restart apache2
+
+
+Start Firefox
+Settings-&gt;Certificates-&gt;Import-&gt;Root in Authorities-&gt;rootCA
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+===================================== Bank Client 
+ pki@pky:~/bank$ = openssl genpkey -algorithm RSA -out bank_pri.pem
+pki@pky:~/bank$ = openssl rsa -pubout -in bank_pri.pem -out bank_pub.pem
+ pki@pky:~/bank/acct1$ = openssl genpkey -algorithm RSA -out acct1_pri.pem
+pki@pky:~/bank/acct1$ = openssl rsa -pubout -in acct1_pri.pem -out acct1_pub.pem
+pki@pky:~/bank/acct1$ = openssl pkeyutl -encrypt -pubin -inkey ../bank_pub.pem -in msg.txt -out msg.enc
+mv msg.enc ../
+pki@pky:~/bank$ = openssl pkeyutl -decrypt -inkey bank_pri.pem -in msg.enc -out msg.txt
+pki@pky:~/bank$ = ls
+acct1 acct2 acct3 bank_pri.pem bank_pub.pem msg.enc msg.txt
+===================================== RSA Sign and Verify 
+pki@pky:~/bank$ = openssl genpkey -algorithm RSA -out pri.pem
+pki@pky:~/bank$ = openssl rsa -pubout -in bank_pri.pem -out pub.pem
+. openssl dgst -sha256 -sign keyfile.pem -out file1.txt.sha256.sig file1.txt
+. openssl dgst -sha256 -verify public_key.pem -signature file1.txt.sha256.sig
+file1.txt
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+OPENSSL site secure
+Root CA Certificate
+openssl    genpkey    -algorithm    RSA    -out    root.key
+openssl    req    -new    -key    root.key    -out    root.csr
+openssl    x509    -req    -in    root.csr    -signkey    root.key    -out root.crt     -days    3650
+
+Sub CA Certificate
+openssl    genpkey    -algorithm    RSA    -out    sub.key
+openssl    req    -new    -key    sub.key    -out    sub.csr
+
+First make one sub.ext  
+
+basicConstraints=critical,CA:TRUE,pathlen:0
+keyUsage=critical,keyCertSign,cRLSign 
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid,issuer 
+
+openssl    x509    -req    -in    sub.csr    -CA    root.crt    -CAkey    root.key   -CAcreateserial    -out    sub.crt    -days    1825 -ext   sub.ext 
+
+Issue Digital Certificates from Sub CA
+openssl    genpkey    -algorithm    RSA    -out    server.key
+openssl    req    -new    -key    server.key    -out   server.csr
+
+First make one server.ext  
+
+basicConstraints=critical,CA:FALSE
+keyUsage=critical,digitalSignature,nonRepudiation,keyEncipherment,keyAgreement
+extendedKeyUsage=serverAuth,clientAuth,emailProtection
+subjectAltName=@alt_names
+[alt_names] 
+DNS.1= www.boomshakalaka.in 
+
+openssl    x509    -req    -in    server.csr    -CA    sub.crt    -CAkey    sub.key   -CAcreateserial    -out    server.crt    -days    365  -ext  server.ext
+
+
+sudo    apt    update
+sudo    apt    install    apache2
+sudo    systemctl    status    apache2
+sudo    ufw    allow    'Apache'
+sudo    a2enmod    ssl                                                                                             
+
+
+MD5 HASH:
+
+1)md5sum msg.txt
+2)md5sum msg.txt > msg.md5
+3)md5sum -c msg.md5
+
+Now,change some text in msg.txt
+And again check
+4)md5sum -c msg.md5—--> the checksum will not match now
+
+
+
+
+
